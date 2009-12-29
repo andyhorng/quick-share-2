@@ -57,11 +57,8 @@ post '/qs/list' do
     if File.directory? File.join(options.qsroot, params[:path], entry)
       dir = true
     end
-    # 第一個不能是 / 
-    puts File.join(params[:path], entry)
     [File.join(params[:path], entry), dir]
   end.to_json
-  puts "json = " + json.inspect
   json
 end
 
