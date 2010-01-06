@@ -53,9 +53,9 @@ post '/qs/list' do
   puts "========"
 
   json = Dir.entries(File.join(options.qsroot, params[:path])).find_all{|e| e =~ /^[^.].*/}.collect do |entry|
-    dir = false
+    dir = 0
     if File.directory? File.join(options.qsroot, params[:path], entry)
-      dir = true
+      dir = 1
     end
     [File.join(params[:path], entry), dir]
   end.to_json
