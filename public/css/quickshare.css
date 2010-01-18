@@ -23,3 +23,19 @@ div#loader {
   display: none;
   position: fixed;
 }
+
+div.part_selected {
+  background-color: gray;
+}
+
+#selected_root div {
+  display: none;
+}
+
+#selected_root div.wrapper {
+  display: block;
+}
+
+#selected_root  div.selected, #selected_root div.part_selected {
+  display: block;
+}
