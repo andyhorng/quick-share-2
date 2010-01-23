@@ -1,31 +1,74 @@
+body {
+  background-color: #4F7EB6;
+}
+
+div#tree {
+  background-color: #4F7EB6;
+  overflow: auto;
+  height: 38em;
+}
+
+div#toolbar {
+  text-align: center;
+}
+
 
 div.wrapper {
   padding-left: 1em;
 }
 
+div#logo {
+  margin-bottom: 1em;
+}
 
+/**/
 div.node a.select {
   padding-right: 0.5em;
+  display: inline-block;
+  height: 24px;
+  width: 24px;
+  background-image: url(/images/add.png);
+  background-repeat: no-repeat;
+}
+
+div.selected > a.select {
+  background-image: url(/images/remove.png);
+  background-repeat: no-repeat;
+}
+
+
+div.node {
+  padding-left: 2em;
+  height: 2em;
+  background-repeat: no-repeat;
+  background-position: left;
+}
+
+div.opened {
+  background-image: url(/images/fo.png);
+}
+
+div.closed {
+  background-image: url(/images/fc.png);
+}
+
+div.file {
+  background-image: url(/images/file.png);
 }
 
 div.node a.open {
 }
 
-div.node {
-  border: 1px solid #fc0;
-}
-
-div.selected {
-  background-color: #fc0;
-}
-
 div#loader {
   display: none;
   position: fixed;
+  top: 0;
+  right: 0;
 }
 
-div.part_selected {
-  background-color: gray;
+div.part_selected > a.select {
+  background-image: url(/images/add_part.png);
+  background-repeat: no-repeat;
 }
 
 #selected_root div {

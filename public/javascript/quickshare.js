@@ -1,3 +1,4 @@
+// 可以取得 element 的 tag name
 $.fn.tagName = function() {
   return this.get(0).tagName;
 }
@@ -8,7 +9,37 @@ $(document).ready(function() {
       $(this).show("fast");
       }).ajaxComplete(function() {$(this).hide("fast")});
     init();
+    /*
+    $('#package').click(function(e) {
+      e.preventDefault();
+      var paths = [];
+      $('#root').find('div.node').each(function() {
+        if($(this).data('select') == true) {
+          paths.push($(this).data('path'));
+        }
+        });
+      $.post('/qs/package', {'paths' : JSON.stringify(paths)});
+      });
+    */
+    $('a#package').fancybox({
+      'hideOnContentClick': false,
+      'callbackOnShow': fancyboxContant,
+      'callbackOnClose': fancyboxClose,
+      'frameWidth': $('#tree').width(),
+      'frameHeight':$('#tree').height(),
+      });
     });
+
+
+function fancyboxContant() {
+  $('#fancy_div').html($('#selected_root').show());
+}
+
+function fancyboxClose() {
+  $('body').append($('<div id="selected_root" class="wrapper"></div>'));
+  $('#selected_root').html($('#root').html()).hide();
+  setPreviewEvent($('#selected_root'));
+}
 
 
 // initialization
@@ -31,24 +62,24 @@ function fillWrapper(list, wrapper, show) {
 
       var select = $('<a class="select"></a>');
       var open = $('<a class="open"></a>');
-      var node = $('<div class="node"></div>');
+      var node = $('<div class="node closed"></div>');
 
       wrapper.append(node);
       wrapper.append('<div class="wrapper"></div>');
-      wrapper.find('div.node:last').append(select).append(open);
+      wrapper.find('div.node:last').append(open).append(select);
 
       // set select
-      select.attr('href', '#').text('+');
+      select.attr('href', '#');
 
       //**
       // get parent of wrapper (it's on wrapper's previous sibling)
-      select.data('select', ps.data('select'));
+      select.parent('div.node').data('select', ps.parent('div.node').data('select'));
       updateSelect(select);
 
       select.click(function(e) {
         e.preventDefault();
-        $(this).data('select', !$(this).data('select'));
-        $(this).parent().next().find('a.select').data('select', $(this).data('select'));
+        $(this).parent('div.node').data('select', !$(this).parent('div.node').data('select'));
+        $(this).parent().next().find('a.select').parent('div.node').data('select', $(this).parent('div.node').data('select'));
         $(this).parent().removeClass('part_selected');
         $(this).parent().next().find('div.node').removeClass('part_selected');
 
@@ -67,37 +98,44 @@ function fillWrapper(list, wrapper, show) {
         });
 
       // set open
-      open.attr('href', '#').text(nodeName(this[0])).data('path', this[0]);
+      open.attr('href', '#').text(nodeName(this[0])).parent('div.node').data('path', this[0]);
       open.one('click', function(e) {
           e.preventDefault();
           var a = $(this);
-          $.post("/qs/list", {'path': a.data('path')}, function(json) {
+          $.post("/qs/list", {'path': a.parent('div.node').data('path')}, function(json) {
             var l = JSON.parse(json, function(key, value){return value});
             // recursive call, but it's event trigger
             fillWrapper(l, a.parent().next(), true);
             });
+          a.parent('div.node').toggleClass('closed');
+          a.parent('div.node').toggleClass('opened');
           // click event change to toggle wrapper
           a.click(function(e) {
             e.preventDefault();
-            $(this).parent().next().slideToggle();
+            openToggle($(this));
+            // $(this).parent().next().slideToggle();
+            // $(this).parent('div.node').toggleClass('closed');
+            // $(this).parent('div.node').toggleClass('opened');
             });
           });
   });
 
   // file    
   $.each( $.grep(list, function(i){return i[1]==0}), function() {
-      var node = $('<div class="node"></div>');
-      var select = $('<a class="select" href="#">+</a>');
+      var node = $('<div class="node file"></div>');
+      var select = $('<a class="select" href="#"></a>');
 
       wrapper.append(node);
-      node.append(select);
       node.append(nodeName(this[0]));
+      node.append(select);
 
-      select.data('select', ps.data('select'));
+      
+      select.parent('div.node').data('path', this[0]);
+      select.parent('div.node').data('select', ps.parent('div.node').data('select'));
       updateSelect(select);
       select.click(function(e) {
         e.preventDefault();
-        $(this).data('select', !$(this).data('select'));
+        $(this).parent('div.node').data('select', !$(this).parent('div.node').data('select'));
         updateSelect($(this));
         updateSelAncestor(select);
         
@@ -131,7 +169,7 @@ function nodeName(path) {
 }
 
 function updateSelect(select) {
-  if(select.data('select')) {
+  if(select.parent('div.node').data('select')) {
     select.parent().addClass('selected');
     select.parent().next().find('div.node').addClass('selected');
   } else {
@@ -145,12 +183,12 @@ function updateSelAncestor(select) {
   // any update, its all ancestor should be part_selected and non-selected
   var ancestor = select.parents('div.wrapper');
   ancestor.prev('div.node').addClass('part_selected').removeClass('selected');
-  ancestor.prev('div.node').children('a.select').data('select', false);
+  ancestor.prev('div.node').children('a.select').parent('div.node').data('select', false);
 
-  if(select.data('select')) {
+  if(select.parent('div.node').data('select')) {
     ancestor.each(function() {
         if( $(this).children('div.selected').length == $(this).children('div.node').length ) {
-        $(this).prev().addClass('selected').children('a.select').data('select', true);
+        $(this).prev().addClass('selected').children('a.select').parent('div.node').data('select', true);
         $(this).prev().removeClass('part_selected');
         } else {
 
@@ -196,29 +234,34 @@ function setPreviewEvent(specWrapper) {
       var open = $(this);
       if( mappingWrapper(mo).text() == '') {
       // open in root, and copy to here
-      $.post("/qs/list", {'path': mo.data('path')}, function(json) {
+      $.post("/qs/list", {'path': mo.parent('div.node').data('path')}, function(json) {
         var l = JSON.parse(json, function(key, value){return value});
         fillWrapper(l, mappingWrapper(mo), false);
         // mo toggle event
         mo.unbind().click(function(e) {
           e.preventDefault();
-          mappingWrapper($(this)).slideToggle();
+          // mappingWrapper($(this)).slideToggle();
+          openToggle($(this));
           });
         mappingWrapper(open).replaceWith(mappingWrapper(mo).clone());
-        mappingWrapper(open).slideToggle();
+        // mappingWrapper(open).slideToggle();
+        openToggle(open);
         open.click(function(e) {
           e.preventDefault();
-          mappingWrapper($(this)).slideToggle();
+          // mappingWrapper($(this)).slideToggle();
+          openToggle($(this));
           });
         setPreviewEvent(mappingWrapper(open));
         });
       } else {
       if(mappingWrapper(open).text() == '')
         mappingWrapper(open).replaceWith(mappingWrapper(mo).clone().hide());
-      mappingWrapper(open).slideToggle();
+      // mappingWrapper(open).slideToggle();
+      openToggle(open);
       open.click(function(e) {
         e.preventDefault();
-        $(this).parent().next().slideToggle();
+        // $(this).parent().next().slideToggle();
+        openToggle($(this));
         });
       }
       });
@@ -245,4 +288,11 @@ function mappingOf(element) {
     else
       return $('#root');
   }
+}
+
+
+function openToggle(open) {
+  mappingWrapper(open).slideToggle();
+  open.parent('div.node').toggleClass('opened');
+  open.parent('div.node').toggleClass('closed');
 }

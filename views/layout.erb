@@ -10,20 +10,22 @@
         <link rel="stylesheet" href="/css/blueprint/print.css" type="text/css" media="print"> 
   <!--[if lt IE 8]><link rel="stylesheet" href="/css/blueprint/ie.css" type="text/css" media="screen, projection"><![endif]--> 
 
-  <link type="text/css" href="css/smoothness/jquery-ui-1.7.2.custom.css" rel="stylesheet" />	
   <link rel="stylesheet" href="/css/quickshare.css" type="text/css" media="screen"> 
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox-1.2.6.css" type="text/css" media="screen">
 
-  <title>Quick Share v2</title>
+  <title>Parment</title>
   <script type="text/javascript" src="/javascript/json2.js"></script> 
   <script type="text/javascript" src="/javascript/jquery.js"></script> 
   <script type="text/javascript" src="/javascript/quickshare.js"></script> 
-  <script type="text/javascript" src="js/jquery-ui-1.7.2.custom.min.js"></script>
+
+  <script type="text/javascript" src="/fancybox/jquery.fancybox-1.2.6.js"></script>
   
   
 </head>
 <body>
+  <div id="loader" style="display:none"><img src="/images/loader.gif"/></div>
   <div class="container">
-    <div id="loader"class="span-24 last" style="display:none"><img src="/images/loader.gif"/></div>
+    <div id="logo"><img src="/images/parment_.png" /></div>
       <%= yield %>
   </div>
 </body>

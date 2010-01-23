@@ -3,9 +3,12 @@ require 'sinatra'
 require 'erb'
 require 'json'
 
+require 'package'
+
 set :qsroot, '/home/ape'
 
 before do 
+  content_type :html, :charset => 'utf-8'
   if session[:login].nil?
     session[:login] = false
   end
@@ -47,11 +50,6 @@ post '/qs/i' do
 end
 
 post '/qs/list' do
-
-  puts "========"
-  puts params[:path]
-  puts "========"
-
   json = Dir.entries(File.join(options.qsroot, params[:path])).find_all{|e| e =~ /^[^.].*/}.collect do |entry|
     dir = 0
     if File.directory? File.join(options.qsroot, params[:path], entry)
@@ -64,3 +62,17 @@ end
 
 helpers do
 end
+
+
+post '/qs/package' do
+  puts params[:paths]
+  puts JSON.parse(params[:paths])
+  package = Package.new(JSON.parse(params[:paths]),
+                        "/tmp", 
+                        options.qsroot, 10 )
+  puts package.item_relative_paths
+  puts 'zip: ' + package.zip
+  # puts package.package
+  package.zip
+end
+
