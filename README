@@ -1,0 +1,11 @@
+
+This is a file sharing system. It is provide a web page for user to select files he want to share.
+Then system will bundle those files to a zip file and provide a link to download. And you can assign 
+the time how long the link will be expired. If time is up, the system will delete the zip, and the 
+link will be unavailable.
+
+It uses Sinatra to build the service api. the client is just javascript to use the api to communicate
+the server for select/package files.
+
+andyhorng168@gmail.com
+
